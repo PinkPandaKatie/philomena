@@ -1,5 +1,8 @@
 FROM elixir:1.13.4-alpine
 
+ARG UID=1000
+RUN adduser -h /home/philomena -u $UID -s /bin/sh -D philomena
+
 ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/5.1 /tmp/ffmpeg_version.json
 RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /etc/apk/repositories) > /tmp/repositories \
     && cp /tmp/repositories /etc/apk/repositories \
@@ -24,4 +27,6 @@ COPY docker/app/run-test /usr/local/bin/run-test
 COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
 COPY docker/app/purge-cache /usr/local/bin/purge-cache
 ENV PATH=$PATH:/root/.cargo/bin
+
+USER philomena
 CMD run-development
