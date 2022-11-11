@@ -23,7 +23,11 @@ npm install
 )
 
 # Always install mix dependencies
-(cd /srv/philomena && mix deps.get)
+(cd /srv/philomena &&
+     mix local.hex --force &&
+     mix local.rebar --force &&
+     mix deps.get &&
+     mix phx.digest)
 
 # Sleep to allow Elasticsearch to finish initializing
 # if it's not done doing whatever it does yet
@@ -37,13 +41,15 @@ done
 echo
 
 # Try to create the database if it doesn't exist yet
-createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev && mix reindex_all
+createdb -h postgres -U postgres philomena_dev 2>/dev/null && mix ecto.setup_dev && mix reindex_all
 
 # Explicitly compile deps to avoid racing
 mix compile
 
 # Run background jobs
 background &
+
+echo "Starting application"
 
 # Run the application
 START_WORKER=true exec mix phx.server
